@@ -1,12 +1,13 @@
 //@ts-check
 'use strict';
 
+const get = require('lodash.get');
 const co = require('co');
 const AWS = require('aws-sdk');
 const kinesis = new AWS.Kinesis();
 const chance = require('chance').Chance();
 const log = require('../lib/log');
-const get = require('lodash.get');
+const cloudwatch = require('../lib/cloudwatch');
 
 const middy = require('middy');
 const sampleLogging = require('../middleware/sample-logging');
@@ -47,7 +48,10 @@ const handler = co.wrap(function* (event, context, cb) {
     StreamName: streamName
   };
 
-  yield kinesis.putRecord(kinesisReq).promise();
+  yield cloudwatch.trackExecTime(
+    "KinesisPutRecordLatency",
+    () => kinesis.putRecord(kinesisReq).promise()
+  );
 
   log.debug(`published event into Kinesis`, { eventName: 'order_placed' });
 

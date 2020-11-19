@@ -1,0 +1,7 @@
+https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#metricsV2:
+
+https://us-east-1.console.aws.amazon.com/cloudwatch/home?region=us-east-1#metricsV2:graph=~(view~'timeSeries~stacked~false~region~'us-east-1~metrics~(~(~'big-mouth~'NotifyRestaurantSuccess~'Function~'big-mouth-dev-notify-restaurant~'Version~'!LATEST)~(~'.~'NotifyRestaurantFailed~'.~'.~'.~'.)~(~'.~'NotifyRestaurantQueued~'.~'.~'.~'.)));query=~'*7bbig-mouth*2cFunction*2cVersion*7d
+
+
+
+https://us-east-1.console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups/log-group/$252Faws$252Flambda$252Fbig-mouth-dev-get-index
