@@ -9,6 +9,7 @@ const URL = require('url');
 const aws4 = require('../lib/aws4');
 const log = require('../lib/log');
 const cloudwatch = require('../lib/cloudwatch');
+const AWSXRay = require('aws-xray-sdk');
 
 const middy = require('middy');
 const sampleLogging = require('../middleware/sample-logging');
@@ -50,7 +51,25 @@ function* getRestaurants() {
     httpReq.set('X-Amz-Security-Token', opts.headers['X-Amz-Security-Token']);
   }
 
-  return (yield httpReq).body;
+  return new Promise((resolve, reject) => {
+    let f = co.wrap(function* (subsegment) {
+      subsegment.addMetadata('url', restaurantsApiRoot);
+
+      try {
+        let body = (yield httpReq).body;
+        subsegment.close();
+        resolve(body);
+      } catch (err) {
+        subsegment.close(err);
+        reject(err);
+      }
+    });
+
+    // the current sub/segment
+    let segment = AWSXRay.getSegment();
+
+    AWSXRay.captureAsyncFunc("getting restaurants", f, segment);
+  });
 }
 
 const handler = co.wrap(function* (event, context, callback) {
