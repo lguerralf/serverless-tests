@@ -4,7 +4,7 @@ const co = require("co");
 const Promise = require("bluebird");
 const fs = Promise.promisifyAll(require("fs"));
 const Mustache = require('mustache');
-const http = require('superagent-promise')(require('superagent'), Promise);
+const http = require('../lib/http');
 const URL = require('url');
 const aws4 = require('../lib/aws4');
 const log = require('../lib/log');
@@ -13,6 +13,7 @@ const AWSXRay = require('aws-xray-sdk');
 
 const middy = require('middy');
 const sampleLogging = require('../middleware/sample-logging');
+const captureCorrelationIds = require('../middleware/capture-correlation-ids');
 
 const awsRegion = process.env.AWS_REGION;
 const cognitoUserPoolId = process.env.cognito_user_pool_id;
@@ -41,26 +42,27 @@ function* getRestaurants() {
 
   aws4.sign(opts);
 
-  let httpReq = http
-    .get(restaurantsApiRoot)
-    .set('Host', opts.headers['Host'])
-    .set('X-Amz-Date', opts.headers['X-Amz-Date'])
-    .set('Authorization', opts.headers['Authorization']);
-
-  if (opts.headers['X-Amz-Security-Token']) {
-    httpReq.set('X-Amz-Security-Token', opts.headers['X-Amz-Security-Token']);
-  }
+  let httpReq = http({
+    uri: restaurantsApiRoot,
+    headers: opts.headers
+  });
 
   return new Promise((resolve, reject) => {
     let f = co.wrap(function* (subsegment) {
-      subsegment.addMetadata('url', restaurantsApiRoot);
+      if (subsegment) {
+        subsegment.addMetadata('url', restaurantsApiRoot);
+      }
 
       try {
         let body = (yield httpReq).body;
-        subsegment.close();
+        if (subsegment) {
+          subsegment.close();
+        }
         resolve(body);
       } catch (err) {
-        subsegment.close(err);
+        if (subsegment) {
+          subsegment.close(err);
+        }
         reject(err);
       }
     });
@@ -111,4 +113,5 @@ const handler = co.wrap(function* (event, context, callback) {
 });
 
 module.exports.handler = middy(handler)
+  .use(captureCorrelationIds({ sampleDebugLogRate: 0.01 }))
   .use(sampleLogging({ sampleRate: 0.01 }));

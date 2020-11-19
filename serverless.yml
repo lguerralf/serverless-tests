@@ -18,9 +18,11 @@ provider:
   name: aws
   runtime: nodejs12.x
   versionFunctions: false
+  stage: dev
   tracing: true
   environment:
     log_level: ${self:custom.logLevel.${self:custom.stage}, self:custom.logLevel.default}
+    STAGE: ${self:custom.stage}
   iamRoleStatements:
     - Effect: Allow
       Action: cloudwatch:PutMetricData

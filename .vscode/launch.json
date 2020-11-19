@@ -23,14 +23,15 @@
         "local",
         "-f",
         "get-index",
-        "-d",
-        "{}"
+        "-p",
+        "examples/get-index.json"
       ],
       "env": {
         "restaurants_api": "https://0o62e30pif.execute-api.us-east-1.amazonaws.com/dev/restaurants",
         "cognito_user_pool_id": "us-east-1_eMQRILn1F",
         "cognito_client_id": "6sdgdibhj88vb6sioep7ddoj9j",
-        "SLS_DEBUG": "*"
+        "SLS_DEBUG": "*",
+        "AWS_XRAY_CONTEXT_MISSING":"LOG_ERROR"
       }
     },
     {
@@ -48,7 +49,8 @@
       ],
       "env": {
         "restaurants_table": "restaurants",
-        "SLS_DEBUG": "*"
+        "SLS_DEBUG": "*",
+        "AWS_XRAY_CONTEXT_MISSING":"LOG_ERROR"
       }
     },
     {
@@ -66,8 +68,23 @@
       ],
       "env": {
         "restaurants_table": "restaurants",
-        "SLS_DEBUG": "*"
+        "SLS_DEBUG": "*",
+        "AWS_XRAY_CONTEXT_MISSING":"LOG_ERROR"
       }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "create-alarm",
+      "program": "${workspaceFolder}/node_modules/.bin/sls",
+      "args": [
+        "invoke",
+        "local",
+        "-f",
+        "auto-create-api-alarms",
+        "-p",
+        "examples/create-alarm.json"
+      ]
     },
     {
       "type": "node",
@@ -99,6 +116,6 @@
         "--reporter",
         "spec"
       ]
-    },
+    },    
   ]
 }
