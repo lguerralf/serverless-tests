@@ -1,15 +1,16 @@
 //@ts-check
 'use strict';
 
-const get = require('lodash.get');
-const co = require('co');
-const AWS = require('aws-sdk');
-const kinesis = new AWS.Kinesis();
-const chance = require('chance').Chance();
-const log = require('../lib/log');
+const get         = require('lodash.get');
+const co         = require('co');
+const AWSXRay    = require('aws-xray-sdk');
+const AWS        = AWSXRay.captureAWS(require('aws-sdk'));
+const kinesis    = new AWS.Kinesis();
+const chance     = require('chance').Chance();
+const log        = require('../lib/log');
 const cloudwatch = require('../lib/cloudwatch');
 
-const middy = require('middy');
+const middy         = require('middy');
 const sampleLogging = require('../middleware/sample-logging');
 
 const streamName = process.env.order_events_stream;
