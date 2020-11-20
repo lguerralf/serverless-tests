@@ -17,6 +17,7 @@
         "lodash.clone": "^4.5.0",
         "lodash.flattendeep": "^4.4.0",
         "lodash.get": "^4.4.2",
+        "lodash.isstring": "^4.0.1",
         "lodash.keys": "^4.2.0",
         "middy": "^0.10.8",
         "mustache": "^2.3.0",
